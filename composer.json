@@ -1,0 +1,38 @@
+{
+    "name": "alexander-levitsky/laravel-geocoder",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Alexander Levitsky",
+            "email": "piro@list.ru"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "illuminate/support": "^11.0",
+        "illuminate/http": "^11.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "orchestra/testbench": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Piro\\Geocoder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Piro\\Geocoder\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Piro\\Geocoder\\Providers\\GeocoderServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
