@@ -12,7 +12,6 @@ use RuntimeException;
 class MaptilerProvider implements GeocoderProvider
 {
     private const string GEOCODING_URL = 'https://api.maptiler.com/geocoding/{longitude},{latitude}.json';
-    private const int CACHE_TTL_MINUTES = 60;
     private const int DEFAULT_LIMIT = 1;
     private const string LANGUAGE = 'en';
 
@@ -25,13 +24,8 @@ class MaptilerProvider implements GeocoderProvider
         $this->validateCoordinates($latitude, $longitude);
 
         $params = $this->buildRequestParams();
-        $cacheKey = $this->buildCacheKey($latitude, $longitude, $params);
 
-        $response = Cache::remember(
-            $cacheKey,
-            self::CACHE_TTL_MINUTES * 60,
-            fn() => $this->makeRequest($latitude, $longitude, $params)
-        );
+        $response = $this->makeRequest($latitude, $longitude, $params);
 
         if ($response->failed()) {
             $this->handleFailedResponse($response);
@@ -65,17 +59,6 @@ class MaptilerProvider implements GeocoderProvider
             'limit' => self::DEFAULT_LIMIT,
             'language' => self::LANGUAGE,
         ];
-    }
-
-    private function buildCacheKey(float $latitude, float $longitude, array $params): string
-    {
-        $data = [
-            'lat' => $latitude,
-            'lon' => $longitude,
-            'params' => $params,
-        ];
-
-        return sprintf('maptiler_geo_%s', md5(json_encode($data)));
     }
 
     private function makeRequest(float $latitude, float $longitude, array $params): Response

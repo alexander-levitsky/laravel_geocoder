@@ -11,6 +11,9 @@ class Geocoder implements GeocoderProvider
 {
 
     private GeocoderProvider $mainProvider;
+    /**
+     * @var GeocoderProvider[]
+     */
     private array $fallbackProviders = [];
 
     public function __construct()
@@ -43,7 +46,7 @@ class Geocoder implements GeocoderProvider
         }
 
         foreach ($this->fallbackProviders as $provider) {
-            $result = $provider->reverseGeocode(latitude: $latitude, longitude: $longitude);
+            $result = $provider->reverse(latitude: $latitude, longitude: $longitude);
             if ($result) {
                 return $result;
             }

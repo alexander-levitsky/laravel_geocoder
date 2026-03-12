@@ -15,7 +15,6 @@ class TestCase extends Orchestra {
      */
     protected function getEnvironmentSetUp($app): void
     {
-        // todo убрать ключи
         // Настраиваем фейковые ключи, чтобы тесты не лезли в реальный .env родителя
         $app['config']->set('geocoder.default', 'dadata');
         $app['config']->set('geocoder.providers.dadata.api_key', 'https://dadata.ru');
