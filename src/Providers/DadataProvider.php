@@ -3,7 +3,6 @@
 namespace Piro\Geocoder\Providers;
 
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Piro\Geocoder\Contracts\GeocoderProvider;
 use Piro\Geocoder\DTO\Location;
@@ -12,7 +11,6 @@ use RuntimeException;
 class DadataProvider implements GeocoderProvider
 {
     private const string SUGGESTION_URL = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate/address';
-    private const int CACHE_TTL_MINUTES = 60;
     private const int DEFAULT_COUNT = 1;
 
     public function __construct(
@@ -24,13 +22,8 @@ class DadataProvider implements GeocoderProvider
         $this->validateCoordinates($latitude, $longitude);
 
         $params = $this->buildRequestParams($latitude, $longitude);
-        $cacheKey = $this->buildCacheKey($params);
 
-        $response = Cache::remember(
-            $cacheKey,
-            self::CACHE_TTL_MINUTES * 60,
-            fn() => $this->makeRequest($params)
-        );
+        $response = $this->makeRequest($params);
 
         if ($response->failed()) {
             $this->handleFailedResponse($response);
@@ -64,11 +57,6 @@ class DadataProvider implements GeocoderProvider
             'lon' => $longitude,
             'count' => self::DEFAULT_COUNT,
         ];
-    }
-
-    private function buildCacheKey(array $params): string
-    {
-        return sprintf('dadata_geo_%s', md5(json_encode($params)));
     }
 
     private function makeRequest(array $params): Response
