@@ -109,6 +109,7 @@ class DadataProvider implements GeocoderProvider
             $this->buildStreetPart($data),
             $data['settlement_with_type'] ?? null,
             $data['area_with_type'] ?? null,
+            $data['city_with_type'] ?? null,
             $data['region_with_type'] ?? null,
         ]);
 
