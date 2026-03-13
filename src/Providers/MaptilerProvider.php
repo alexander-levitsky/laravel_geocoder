@@ -161,6 +161,10 @@ class MaptilerProvider implements GeocoderProvider
      */
     private function regionChanger(?array $feature): ?string
     {
+        if (!$feature){
+            return null;
+        }
+
         if (!array_key_exists('ref', $feature) || !$feature['text']) {
             return null;
         }
