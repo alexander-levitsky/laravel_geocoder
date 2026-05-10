@@ -2,12 +2,20 @@
 
 namespace Piro\Geocoder\Tests\Feature;
 
+use Piro\Geocoder\Contracts\GeoProviders;
 use Piro\Geocoder\Geocoder;
 use Piro\Geocoder\Tests\TestCase;
 
 class DadataProviderTest extends TestCase
 {
-    /** @test */
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        parent::getEnvironmentSetUp($app);
+        config(['geocoder.default' => GeoProviders::DADATA]);
+    }
+
+//    /** @test */
     public function it_can_geocode_address_via_dadata()
     {
 
@@ -40,22 +48,9 @@ class DadataProviderTest extends TestCase
 
         $result = [];
 
-        foreach ($coords as $name => $coords) {
-            $address = $geocoder->reverse(...$coords);
-            $result[$name . ':' . implode(',', $coords)] = $address->address;
+        foreach ($coords as $name => $coordsItem) {
+            $address = $geocoder->reverse(...$coordsItem);
+            $result[$name . ':' . implode(',', $coordsItem)] = $address->address;
         }
-
-dd($result);
-
-
-//        // 3. Вызываем метод
-//        $result = $provider->geocode('мск сухонская 11');
-//
-//        // 4. Проверки (Assertions)
-//        $this->assertInstanceOf(Location::class, $result);
-//        $this->assertEquals(55.878516, $result->lat);
-//        $this->assertEquals(37.65372, $result->lon);
-//        $this->assertEquals('dadata', $result->provider);
-//        $this->assertStringContainsString('Сухонская', $result->address);
     }
 }
