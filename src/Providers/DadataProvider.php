@@ -5,7 +5,11 @@ namespace Piro\Geocoder\Providers;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Piro\Geocoder\Contracts\GeocoderProvider;
+use Piro\Geocoder\Contracts\GeoProviders;
+use Piro\Geocoder\DTO\City;
 use Piro\Geocoder\DTO\Location;
+use Piro\Geocoder\DTO\Region;
+use Piro\Geocoder\DTO\Subregion;
 use RuntimeException;
 
 class DadataProvider implements GeocoderProvider
@@ -89,7 +93,10 @@ class DadataProvider implements GeocoderProvider
             lat: $this->extractLatitude($data),
             lon: $this->extractLongitude($data),
             address: $this->buildAddressString($data),
-            provider: 'dadata'
+            region: $this->buildRegion($data),
+            city: $this->buildCity($data),
+            subregion: $this->buildSubregion($data),
+            provider: GeoProviders::DADATA
         );
     }
 
@@ -114,6 +121,40 @@ class DadataProvider implements GeocoderProvider
         ]);
 
         return implode(', ', $addressParts);
+    }
+
+    private function buildRegion(array $data): ?Region
+    {
+        return new Region(
+            type: $data['region_type_full'],
+            shortType: $data['region_type'],
+            name: $data['region'],
+            text: $data['region_with_type'],
+        );
+    }
+
+    private function buildCity(array $data): ?City
+    {
+        return new City(
+            type: $data['city_type_full'],
+            shortType: $data['city_type'],
+            name: $data['city'],
+            text: $data['city_with_type'],
+        );
+    }
+
+    private function buildSubregion(array $data): ?Subregion
+    {
+        if ($data['settlement_with_type'] === null) {
+            return null;
+        }
+
+        return new Subregion(
+            type: $data['settlement_type_full'],
+            shortType: $data['settlement_type'],
+            name: $data['settlement'],
+            text: $data['settlement_with_type'],
+        );
     }
 
     private function buildStreetPart(array $data): ?string

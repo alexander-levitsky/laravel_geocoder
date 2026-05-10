@@ -3,6 +3,7 @@
 namespace Piro\Geocoder;
 
 use Piro\Geocoder\Contracts\GeocoderProvider;
+use Piro\Geocoder\Contracts\GeoProviders;
 use Piro\Geocoder\DTO\Location;
 use Piro\Geocoder\Providers\DadataProvider;
 use Piro\Geocoder\Providers\MaptilerProvider;
@@ -27,8 +28,8 @@ class Geocoder implements GeocoderProvider
 
         foreach (config('geocoder.providers') as $name=>$config) {
             $providers[$name] = match ($name) {
-                'dadata' => new DadataProvider($config['api_key']),
-                'maptiler' => new MaptilerProvider($config['api_key']),
+                GeoProviders::DADATA => new DadataProvider($config['api_key']),
+                GeoProviders::MAPTILER => new MaptilerProvider($config['api_key']),
                 default => throw new \Error('Unsupported provider: ' . $name),
             };
         }

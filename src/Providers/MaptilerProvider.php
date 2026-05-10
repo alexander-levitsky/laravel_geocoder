@@ -6,7 +6,11 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Piro\Geocoder\Contracts\GeocoderProvider;
+use Piro\Geocoder\Contracts\GeoProviders;
+use Piro\Geocoder\DTO\City;
 use Piro\Geocoder\DTO\Location;
+use Piro\Geocoder\DTO\Region;
+use Piro\Geocoder\DTO\Subregion;
 use RuntimeException;
 
 class MaptilerProvider implements GeocoderProvider
@@ -90,13 +94,67 @@ class MaptilerProvider implements GeocoderProvider
     private function buildLocation(array $feature): Location
     {
         $coordinates = $this->extractCoordinates($feature);
-
         return new Location(
             lat: $coordinates['lat'],
             lon: $coordinates['lon'],
             address: $this->buildAddressString($feature),
-            provider: 'maptiler'
+            region: $this->buildRegion($feature),
+            city: $this->buildCity($feature),
+            subregion: $this->buildSubregion($feature),
+            provider: GeoProviders::MAPTILER
         );
+    }
+
+    private function buildRegion(array $feature): Region
+    {
+        $regionData = $this->getContextItem($feature['context'], 'state');
+        return new Region(
+            type: '',
+            shortType: '',
+            name: $regionData['text_en'],
+            text: $regionData['text_en'],
+        );
+    }
+
+    private function buildCity(array $feature): City
+    {
+        $cityData = $this->getContextItem($feature['context'], 'city');
+        return new City(
+            type: '',
+            shortType: '',
+            name: $cityData['text_en'],
+            text: $cityData['text_en'],
+        );
+    }
+
+    private function buildSubregion(array $feature): ?Subregion
+    {
+        $subregionData = $this->getContextItem($feature['context'], 'municipal_district');
+
+        if (!$subregionData) return null;
+
+        return new Subregion(
+            type: '',
+            shortType: '',
+            name: $subregionData['text_en'],
+            text: $subregionData['text_en'],
+        );
+    }
+
+    private function getContextItem(array $context, string $itemType): ?array
+    {
+        if ($itemType === 'municipal_district') {
+            $searchResults = array_filter($context, fn($item)=>str_starts_with($item['id'], $itemType));
+        } else {
+            $searchResults = array_filter($context, fn($item)=>($item['place_designation'] ?? null) == $itemType);
+        }
+
+        return array_first($searchResults) ?? null;
+    }
+
+    private function getAdminArea(array $context, string $itemType): array
+    {
+        return array_filter($context, fn($item)=>($item['place_designation'] ?? null) == $itemType);
     }
 
     private function extractCoordinates(array $feature): array
