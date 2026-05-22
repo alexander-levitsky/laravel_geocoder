@@ -38,9 +38,10 @@ class GisProviderTest extends TestCase
             [[43.678471, 40.203417], GeoProviders::MAPTILER], // Грузия, жопа
             [[43.678471, 40.203417], GeoProviders::MAPTILER], // Грузия, жопа
             [[41.697314059776915, 44.800898828359706], GeoProviders::MAPTILER], // Грузия, Тбилиси
+            [[36.87681158428566, 30.715650695163973], GeoProviders::MAPTILER], // Турция, Муратпаша, Анталья
         ];
 
-       $test = $geocoder->reverse(41.697314059776915, 44.800898828359706); //
+       $test = $geocoder->reverse(36.87681158428566, 30.715650695163973);
 
        dd($test);
 

@@ -164,11 +164,6 @@ class MaptilerProvider implements GeocoderProvider
         return array_first($searchResults) ?? null;
     }
 
-    private function getAdminArea(array $context, string $itemType): array
-    {
-        return array_filter($context, fn($item)=>($item['place_designation'] ?? null) == $itemType);
-    }
-
     private function extractCoordinates(array $feature): array
     {
         $center = $feature['center'] ?? $feature['geometry']['coordinates'] ?? [0, 0];
@@ -188,6 +183,9 @@ class MaptilerProvider implements GeocoderProvider
             $this->regionChanger($feature['context'][1] ?? null),
             $this->regionChanger($feature['context'][2] ?? null),
             $this->regionChanger($feature['context'][3] ?? null),
+            $this->regionChanger($feature['context'][4] ?? null),
+            $this->regionChanger($feature['context'][5] ?? null),
+            $this->regionChanger($feature['context'][6] ?? null),
         ]);
 
         return implode(', ', $addressComponents);
