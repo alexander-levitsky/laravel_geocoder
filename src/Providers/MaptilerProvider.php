@@ -263,6 +263,9 @@ class MaptilerProvider implements GeocoderProvider
             return null;
         };
 
+        if(str_starts_with($feature['id'] , 'continental_marine')){
+            return null;
+        };
 
         return match ($feature['ref']) {
             'osm:r72639' => 'Респ Крым',

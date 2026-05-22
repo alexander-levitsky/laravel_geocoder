@@ -109,6 +109,8 @@ class GisProvider implements GeocoderProvider
         $area = $this->extractAdministrativePart($data, 'living_area');
         $settlement = $this->extractAdministrativePart($data, 'settlement');
 
+        $place = $this->extractAdministrativePart($data, 'place');
+
         return new Location(
             address: $this->extractAddressString($data, [$settlement,$area,$district,$city,$region]),
             region: $region,
@@ -116,6 +118,7 @@ class GisProvider implements GeocoderProvider
             district: $district,
             area: $area,
             settlement: $settlement,
+            place: $place,
             provider: GeoProviders::GIS
         );
     }
@@ -136,6 +139,12 @@ class GisProvider implements GeocoderProvider
         $itemData = null;
 
         foreach ($data as $item) {
+
+            if (($item['subtype'] ?? null) === $level) {
+                $itemData = $item;
+                break;
+            }
+
             if (empty($item['adm_div'])) continue;
 
             foreach ($item['adm_div'] as $part) {
