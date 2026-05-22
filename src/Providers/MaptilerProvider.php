@@ -3,14 +3,11 @@
 namespace Piro\Geocoder\Providers;
 
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Piro\Geocoder\Contracts\GeocoderProvider;
 use Piro\Geocoder\Contracts\GeoProviders;
-use Piro\Geocoder\DTO\City;
 use Piro\Geocoder\DTO\Location;
-use Piro\Geocoder\DTO\Region;
-use Piro\Geocoder\DTO\Subregion;
+use Piro\Geocoder\DTO\Place;
 use RuntimeException;
 
 class MaptilerProvider implements GeocoderProvider
@@ -61,7 +58,7 @@ class MaptilerProvider implements GeocoderProvider
         return [
             'key' => $this->apiKey,
             'limit' => self::DEFAULT_LIMIT,
-            'language' => self::LANGUAGE,
+            'language' => 'en,ru',
         ];
     }
 
@@ -73,11 +70,11 @@ class MaptilerProvider implements GeocoderProvider
             self::GEOCODING_URL
         );
 
-        return Http::withOptions([
-            'timeout' => 5,
-            'retry' => [3, 100],
-        ])
+        return Http::withHeaders([])
+            ->timeout(5)
+            ->retry(3, 100)
             ->get($url, $params);
+
     }
 
     private function extractFirstFeature(Response $response): ?array
@@ -95,49 +92,64 @@ class MaptilerProvider implements GeocoderProvider
     {
         $coordinates = $this->extractCoordinates($feature);
         return new Location(
-            lat: $coordinates['lat'],
-            lon: $coordinates['lon'],
             address: $this->buildAddressString($feature),
             region: $this->buildRegion($feature),
             city: $this->buildCity($feature),
-            subregion: $this->buildSubregion($feature),
+            district: $this->buildSubregion($feature),
+            settlement: $this->buildSettlement($feature),
             provider: GeoProviders::MAPTILER
         );
     }
 
-    private function buildRegion(array $feature): Region
+    private function buildRegion(array $feature): ?Place
     {
         $regionData = $this->getContextItem($feature['context'], 'state');
-        return new Region(
-            type: '',
-            shortType: '',
-            name: $regionData['text_en'],
-            text: $regionData['text_en'],
+
+        if (empty($regionData)) return null;
+
+        return new Place(
+            id: 0,
+            name: $regionData['text'],
         );
     }
 
-    private function buildCity(array $feature): City
+    private function buildCity(array $feature): ?Place
     {
         $cityData = $this->getContextItem($feature['context'], 'city');
-        return new City(
-            type: '',
-            shortType: '',
-            name: $cityData['text_en'],
-            text: $cityData['text_en'],
+
+        if (empty($cityData)) return null;
+
+        return new Place(
+            id: 0,
+            name: $cityData['text'],
         );
     }
 
-    private function buildSubregion(array $feature): ?Subregion
+    private function buildSubregion(array $feature): ?Place
     {
         $subregionData = $this->getContextItem($feature['context'], 'municipal_district');
 
+        if (!$subregionData) {
+            $subregionData = $this->getContextItem($feature['context'], 'suburb');
+        }
+
         if (!$subregionData) return null;
 
-        return new Subregion(
-            type: '',
-            shortType: '',
-            name: $subregionData['text_en'],
-            text: $subregionData['text_en'],
+        return new Place(
+            id: 0,
+            name: $subregionData['text'],
+        );
+    }
+
+    private function buildSettlement(array $feature): ?Place
+    {
+        $subregionData = $this->getContextItem($feature['context'], 'village');
+
+        if (!$subregionData) return null;
+
+        return new Place(
+            id: 0,
+            name: $subregionData['text'],
         );
     }
 
@@ -198,7 +210,7 @@ class MaptilerProvider implements GeocoderProvider
     }
 
     private function buildStreetPart(array $feature): ?string {
-        $street = $feature['text'] ?? null;
+        $street = $this->getText($feature);
         $house = $feature['address'] ?? null;
 
         if (!$street && !$house) {
@@ -210,6 +222,18 @@ class MaptilerProvider implements GeocoderProvider
         }
 
         return $street ?? $house;
+    }
+
+
+    private function getText(array $feature) : ?string
+    {
+        $key = 'text';
+
+        if (!empty($feature['language_' . self::LANGUAGE]) && $feature['language_' . self::LANGUAGE] !== 'uk') {
+            $key = 'text_' . self::LANGUAGE;
+        }
+
+        return $feature[$key] ?? null;
     }
 
 
@@ -235,10 +259,14 @@ class MaptilerProvider implements GeocoderProvider
             return null;
         };
 
+        if(str_starts_with($feature['id'] , 'major_landform')){
+            return null;
+        };
+
 
         return match ($feature['ref']) {
             'osm:r72639' => 'Респ Крым',
-            default => $feature['text'],
+            default => $this->getText($feature),
         };
     }
 }

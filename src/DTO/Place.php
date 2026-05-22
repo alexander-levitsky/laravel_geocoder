@@ -2,12 +2,10 @@
 
 namespace Piro\Geocoder\DTO;
 
-readonly class City
+readonly class Place
 {
     public function __construct(
-        public string $type,
-        public string $shortType,
+        public int $id,
         public string $name,
-        public string $text,
     ) {}
 }

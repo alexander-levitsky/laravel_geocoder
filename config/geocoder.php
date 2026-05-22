@@ -1,5 +1,7 @@
 <?php
 
+use Piro\Geocoder\Contracts\GeoProviders;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -10,11 +12,11 @@ return [
     'default' => env('GEOCODER_DRIVER', 'dadata'),
 
     'providers' => [
-        'dadata' => [
-            'api_key' => env('DADATA_API_KEY'),
-        ],
-        'maptiler' => [
+        GeoProviders::MAPTILER => [
             'api_key' => env('MAPTILER_API_KEY'),
+        ],
+        GeoProviders::GIS => [
+            'api_key' => env('GIS_API_KEY'),
         ],
     ],
 ];
