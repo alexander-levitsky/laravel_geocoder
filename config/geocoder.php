@@ -9,7 +9,7 @@ return [
     |--------------------------------------------------------------------------
     | Здесь указываем, какой сервис будет основным.
     */
-    'default' => env('GEOCODER_DRIVER', 'dadata'),
+    'default' => env('GEOCODER_DRIVER', GeoProviders::GIS),
 
     'providers' => [
         GeoProviders::MAPTILER => [
