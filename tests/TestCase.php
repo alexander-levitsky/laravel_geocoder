@@ -20,8 +20,8 @@ class TestCase extends Orchestra {
         $app['config']->set('geocoder', [
             'default' => GeoProviders::GIS,
             'providers' => [
-                GeoProviders::GIS => ['api_key' => '0607d2f8-36f4-4d40-8d72-734a837d41a9'],
-                GeoProviders::MAPTILER => ['api_key' => 'ZWE7e9L3CJGm15BRdXIF'],
+                GeoProviders::GIS => ['api_key' => '2GIS_API_KEY'],
+                GeoProviders::MAPTILER => ['api_key' => 'MAPTILER_API_KEY'],
             ],
         ]);
     }
