@@ -1,6 +1,7 @@
 <?php
 namespace Piro\Geocoder\Tests;
 
+use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Piro\Geocoder\Contracts\GeoProviders;
 use Piro\Geocoder\Providers\GeocoderServiceProvider;
@@ -16,6 +17,8 @@ class TestCase extends Orchestra {
      */
     protected function getEnvironmentSetUp($app): void
     {
+        dd(env('GEOCODER_DRIVER'));
+
         // Настраиваем фейковые ключи, чтобы тесты не лезли в реальный .env родителя
         $app['config']->set('geocoder', [
             'default' => GeoProviders::GIS,

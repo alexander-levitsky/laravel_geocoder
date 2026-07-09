@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <!-- Заполните на реальные ключи -->
+        <env name="APP_ENV" value="testing"/>
+        <env name="GEOCODER_DRIVER" value="dadata"/>
+        <env name="DADATA_API_KEY" value="FAKE_DADATA_KEY"/>
+        <env name="MAPTILER_API_KEY" value="FAKE_MAPTILER_KEY"/>
+        <env name="GIS_API_KEY" value="FAKE_GIS_KEY"/>
+    </php>
+</phpunit>
