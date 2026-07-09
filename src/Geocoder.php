@@ -5,7 +5,6 @@ namespace Piro\Geocoder;
 use Piro\Geocoder\Contracts\GeocoderProvider;
 use Piro\Geocoder\Contracts\GeoProviders;
 use Piro\Geocoder\DTO\Location;
-use Piro\Geocoder\Providers\DadataProvider;
 use Piro\Geocoder\Providers\GisProvider;
 use Piro\Geocoder\Providers\MaptilerProvider;
 
@@ -53,6 +52,7 @@ class Geocoder implements GeocoderProvider
                 return $result;
             }
         }
+        return null;
     }
 
 }

@@ -13,7 +13,7 @@ use RuntimeException;
 class GisProvider implements GeocoderProvider
 {
     private const string SUGGESTION_URL = 'https://catalog.api.2gis.com/3.0/items/geocode';
-    private const string REGIONS_URL = 'catalog.api.2gis.com/2.0/region/search';
+    private const string REGIONS_URL = 'https://catalog.api.2gis.com/2.0/region/search';
 
     public function __construct(
         private readonly string $token,
