@@ -17,14 +17,12 @@ class TestCase extends Orchestra {
      */
     protected function getEnvironmentSetUp($app): void
     {
-        dd(env('GEOCODER_DRIVER'));
-
         // Настраиваем фейковые ключи, чтобы тесты не лезли в реальный .env родителя
         $app['config']->set('geocoder', [
             'default' => GeoProviders::GIS,
             'providers' => [
-                GeoProviders::GIS => ['api_key' => '2GIS_API_KEY'],
-                GeoProviders::MAPTILER => ['api_key' => 'MAPTILER_API_KEY'],
+                GeoProviders::GIS => ['api_key' => env('GIS_API_KEY')],
+                GeoProviders::MAPTILER => ['api_key' => env('MAPTILER_API_KEY')],
             ],
         ]);
     }

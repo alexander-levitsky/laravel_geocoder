@@ -14,14 +14,34 @@ use RuntimeException;
 class GisProvider implements GeocoderProvider
 {
     private const string SUGGESTION_URL = 'https://catalog.api.2gis.com/3.0/items/geocode';
-    private const int DEFAULT_COUNT = 1;
+    private const string REGIONS_URL = 'catalog.api.2gis.com/2.0/region/search';
 
     public function __construct(
         private readonly string $token,
+        private readonly string $locale = 'ru_RU',
     ) {}
+
+    private function isRussia(float $latitude, float $longitude)
+    {
+        $response = $this->makeRequest([
+            'key' => $this->token,
+            'q' => "$longitude,$latitude",
+            'country_code_filter'=>'ru',
+            'fields' => "items.bounds,items.country_code",
+            'type' => "region",
+        ], self::REGIONS_URL);
+
+        $result = $response->json()['result']['items'][0] ?? [];
+
+        return strtolower($result['country_code'] ?? '') === 'ru';
+    }
 
     public function reverse(float $latitude, float $longitude): ?Location
     {
+        if($this->isRussia($latitude, $longitude) === false) {
+            return null;
+        }
+
         $this->validateCoordinates($latitude, $longitude);
 
         $params = $this->buildRequestParams($latitude, $longitude);
@@ -34,8 +54,6 @@ class GisProvider implements GeocoderProvider
         }
 
         $data = $this->extractResponseData($response);
-
-
 
         if (empty($data)) {
             return null;
@@ -59,7 +77,7 @@ class GisProvider implements GeocoderProvider
     {
         return [
             'key' => $this->token,
-            'locale' => 'ru_RU',
+            'locale' => $this->locale,
             'type' => 'adm_div,building',
             'fields' => 'items.adm_div,items.country,items.sources,items.filters',
             'search_input_method' => 'software_generated',
@@ -72,12 +90,12 @@ class GisProvider implements GeocoderProvider
         ];
     }
 
-    private function makeRequest(array $params): Response
+    private function makeRequest(array $params, string $endpoint = self::SUGGESTION_URL): Response
     {
         return Http::withHeaders($this->buildHeaders())
             ->timeout(5)
             ->retry(3, 100)
-            ->get(self::SUGGESTION_URL, $params);
+            ->get($endpoint, $params);
     }
 
     private function buildHeaders(): array
@@ -97,13 +115,11 @@ class GisProvider implements GeocoderProvider
 
     private function buildLocation(array $data): ?Location
     {
-
         $country = $this->extractAdministrativePart($data, 'country');
-
-        // ID 1 = Россия
-        if (!in_array($country?->id, [1])) return null;
-
         $region =  $this->extractAdministrativePart($data, 'region');
+
+        if ($this->skipResult($country)) return null;
+
         $city = $this->extractAdministrativePart($data, 'city');
         $district = $this->extractAdministrativePart($data, 'district');
         $area = $this->extractAdministrativePart($data, 'living_area');
@@ -121,6 +137,13 @@ class GisProvider implements GeocoderProvider
             place: $place,
             provider: GeoProviders::GIS
         );
+    }
+
+    private function skipResult(?Place $country = null): bool
+    {
+        // Если нет страны или страна Россия, не пропускаем (ID=1 Россия)
+        $isRussia = !$country || $country->id === 1;
+        return !$isRussia;
     }
 
     private function extractAddressString(array $data, array $parts): string
