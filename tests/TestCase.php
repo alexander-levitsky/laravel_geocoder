@@ -1,7 +1,6 @@
 <?php
 namespace Piro\Geocoder\Tests;
 
-use Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Piro\Geocoder\Contracts\GeoProviders;
 use Piro\Geocoder\Providers\GeocoderServiceProvider;
@@ -21,8 +20,8 @@ class TestCase extends Orchestra {
         $app['config']->set('geocoder', [
             'default' => GeoProviders::GIS,
             'providers' => [
-                GeoProviders::GIS => ['api_key' => env('GIS_API_KEY')],
-                GeoProviders::MAPTILER => ['api_key' => env('MAPTILER_API_KEY')],
+                GeoProviders::GIS => ['api_key' => config('geocoder.providers.2gis.api_key')],
+                GeoProviders::MAPTILER => ['api_key' => config('geocoder.providers.maptiler.api_key')],
             ],
         ]);
     }

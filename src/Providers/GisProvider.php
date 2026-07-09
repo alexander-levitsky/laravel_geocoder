@@ -6,7 +6,6 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Piro\Geocoder\Contracts\GeocoderProvider;
 use Piro\Geocoder\Contracts\GeoProviders;
-use Piro\Geocoder\DTO\City;
 use Piro\Geocoder\DTO\Location;
 use Piro\Geocoder\DTO\Place;
 use RuntimeException;
@@ -21,7 +20,7 @@ class GisProvider implements GeocoderProvider
         private readonly string $locale = 'ru_RU',
     ) {}
 
-    private function isRussia(float $latitude, float $longitude)
+    private function isRussia(float $latitude, float $longitude): bool
     {
         $response = $this->makeRequest([
             'key' => $this->token,
