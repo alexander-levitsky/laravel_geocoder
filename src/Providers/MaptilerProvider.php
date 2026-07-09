@@ -88,9 +88,14 @@ class MaptilerProvider implements GeocoderProvider
         return $data['features'][0] ?? null;
     }
 
-    private function buildLocation(array $feature): Location
+    private function buildLocation(array $feature): ?Location
     {
         $coordinates = $this->extractCoordinates($feature);
+
+        if (array_any($feature['context'], fn($f)=>($f['country_code'] ?? '') === 'ua')) {
+            return null;
+        }
+        
         return new Location(
             address: $this->buildAddressString($feature),
             region: $this->buildRegion($feature),

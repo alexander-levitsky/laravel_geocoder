@@ -37,9 +37,9 @@ class GisProvider implements GeocoderProvider
 
     public function reverse(float $latitude, float $longitude): ?Location
     {
-        if($this->isRussia($latitude, $longitude) === false) {
-            return null;
-        }
+//        if($this->isRussia($latitude, $longitude) === false) {
+//            return null;
+//        }
 
         $this->validateCoordinates($latitude, $longitude);
 
