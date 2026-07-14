@@ -95,7 +95,7 @@ class MaptilerProvider implements GeocoderProvider
         if (array_any($feature['context'], fn($f)=>($f['country_code'] ?? '') === 'ua')) {
             return null;
         }
-        
+
         return new Location(
             address: $this->buildAddressString($feature),
             region: $this->buildRegion($feature),
@@ -113,7 +113,7 @@ class MaptilerProvider implements GeocoderProvider
         if (empty($regionData)) return null;
 
         return new Place(
-            id: 0,
+            id: $this->calcExternalId($regionData['id']),
             name: $regionData['text'],
         );
     }
@@ -125,9 +125,23 @@ class MaptilerProvider implements GeocoderProvider
         if (empty($cityData)) return null;
 
         return new Place(
-            id: 0,
+            id: $this->calcExternalId($cityData['id']),
             name: $cityData['text'],
         );
+    }
+
+    private function calcExternalId(string $inputStr): int
+    {
+        // Разделяем строку по точке на префикс и ID
+        $parts = explode('.', $inputStr);
+        $prefix = $parts[0];
+        $id = isset($parts[1]) ? (int)$parts[1] : 0;
+
+        $hexHash = hash('fnv1a32', $prefix);
+
+        $prefixHash = hexdec($hexHash);
+
+        return ($prefixHash << 32) | ($id & 0xffffffff);
     }
 
     private function buildSubregion(array $feature): ?Place
@@ -141,7 +155,7 @@ class MaptilerProvider implements GeocoderProvider
         if (!$subregionData) return null;
 
         return new Place(
-            id: 0,
+            id: $this->calcExternalId($subregionData['id']),
             name: $subregionData['text'],
         );
     }
@@ -153,7 +167,7 @@ class MaptilerProvider implements GeocoderProvider
         if (!$subregionData) return null;
 
         return new Place(
-            id: 0,
+            id: $this->calcExternalId($subregionData['id']),
             name: $subregionData['text'],
         );
     }
