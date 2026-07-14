@@ -40,8 +40,8 @@ class GisProviderTest extends TestCase
         ];
 
 
-       //$test = $geocoder->reverse( 45.2141193694119,36.2762797487985);
-        $test = $geocoder->reverse(41.697314059776915, 44.800898828359706);
+       $test = $geocoder->reverse( 45.2141193694119,36.2762797487985);
+        //$test = $geocoder->reverse(41.697314059776915, 44.800898828359706);
 
        dd($test);
 
